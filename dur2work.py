@@ -8,7 +8,7 @@
 # googlemaps duration API and writes the result in a SQLite database.
 #
 # SQLite table format:
-#+-------------------------------------------+ track_id:    uinque integer id of the track
+#+-------------------------------------------+ track_id:    unique integer id of the track
 #|                   route                   | start:       start addres of the route
 #+----------+-------+-------------+----------+ destination: destination address 
 #| track_id | start | destination | duration | duration:    google duration result 
@@ -27,11 +27,11 @@
 #
 # The start and destination of the route are passed as arguments to the script.
 # Use i.e. the home address as start and the work address as destination for the
-# way to work. On the way home reverse the start and destination address.
+# way to work. For the way home reverse the start and destination address.
 #
-# The script is intended to be used as a target for a cronjob on a linux. server.
-# The script may i.e. be called every 10 minutes from 5-9am and 14-19pm for a view
-# month. By processing the data collected in the SQLite database the optimum 
+# The script is intended to be used as a cronjob target on a linux server.
+# I. e. ehe script may  be called every 5 minutes from 5-9am and 14-19pm for a view
+# months. By processing the data collected in the SQLite database the optimum 
 # starting time for the way to work and back home can be determined
 #
 # Excample crontab entries (crontab -l)
@@ -66,8 +66,6 @@ import logging                            # Logging
 
 import googlemaps                         # Google maps API
 
-
-
 # Logfile: Write to console and logfile
 logging.basicConfig(
     level=logging.INFO,
@@ -91,9 +89,14 @@ start = args.start
 destination = args.destination
 
 # Read the API key for the googlemaps API from the keyfile
-api_key_file = open(os.path.join(sys.path[0], "api_key.txt"), "r")
-API_KEY = api_key_file.read()
-api_key_file.close()
+try:
+    api_key_file = open(os.path.join(sys.path[0], "api_key.txt"), "r")
+    API_KEY = api_key_file.read()
+    api_key_file.close()
+except Exception as e:
+    logging.error('Error reading API key from "api_key.txt"')
+    logging.error(e)
+    exit()
 
 # Create a googemaps client object
 gmaps = googlemaps.Client(key=API_KEY)
